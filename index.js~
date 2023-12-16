@@ -34,7 +34,7 @@ app.get("/",async(req,res) => {
         userName: user.username,
         email: user.email
 	}
-     res.end( userInfo);
+     res.json( userInfo);
 })
 
 
