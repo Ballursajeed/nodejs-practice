@@ -1,11 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
 import express from "express";
+
 import { check, validationResult } from "express-validator";
 import connectDB from "./db/index.js";
 import { User } from "./models/user.model.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
+import userRouter from "./routes/user.route.js";
+import session from "express-session";
+import cookieParser from "cookie-parser"
 
 const app = express();
 const PORT = 8000;
@@ -16,10 +19,22 @@ connectDB()
 
 //middleware
 app.use(express.json())
+app.use(cookieParser())
 app.use((req,res,next) => {
     console.log("request method:",req.method);
     next();
 })
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET || "your-secret-key",
+        resave: false,
+        saveUninitialized: false,
+        // Omit the store option if you're not using a specific session store
+    })
+);
+
+ app.use("/api/v1/user",userRouter);
 
  const RegisterUser = [
    check("fullname").notEmpty().withMessage("Full name cannot be empty"),
@@ -41,6 +56,7 @@ app.get("/",async(req,res) => {
 })
 
 
+/*
 app.post("/register", RegisterUser, async (req,res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -61,6 +77,6 @@ app.post("/register", RegisterUser, async (req,res) => {
       username: username,
       email: email,
     })
-})
+}) */
 
 app.listen(PORT, () => console.log("Server is running on port:",PORT))
